@@ -4,9 +4,12 @@ const server = express();
 const port = 3000;
 
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
+
+//Cookies & Signatures
+const jwt = require("jsonwebtoken");
+const {SECRET_KEY} = process.env;
 
 //Database imports
 const mongoose = require("mongoose");
@@ -45,6 +48,29 @@ server.post("/register", async (request, response) => {
         await newUser.save();
         response.send({message: "User Created"});
     } catch (error) {
+        response.status(500).send({message: error.message});
+    }
+})
+
+//Login existing user route
+server.post("/login", async(request, response) => {
+    const {username, password} = request.body;
+
+    try {
+        const user = await User.findOne({username});
+        if (!user) {
+            return response.status(404).send({message: "User does not exist"});
+        }
+
+        const match = bcrypt.compare(password, user.password);
+
+        if(!match) {
+            return response.status(403).send({message: "Username or password are incorrect"});
+        }
+
+        const jwtToken = jwt.sign({id: user._id, username}, SECRET_KEY);
+        return response.status(201).send({message: "User Authenticated", token: jwtToken});
+    } catch(error) {
         response.status(500).send({message: error.message});
     }
 })

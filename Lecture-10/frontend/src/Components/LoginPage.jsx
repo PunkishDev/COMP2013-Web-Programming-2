@@ -22,7 +22,7 @@ export default function LoginPage() {
         try {
             const response = await axios.post("http://localhost:3000/login", {...formData});
             setPostResponse(response.data.message);
-            if(response.status === 200) {
+            if(response.status === 201) {
                 navigate("/private");
             }
         } catch(error) {
