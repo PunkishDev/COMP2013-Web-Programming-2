@@ -16,12 +16,14 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/register", {...formData});
+      const response = await axios.post("http://localhost:3000/register", {
+        ...formData,
+      });
 
       console.log(response.data);
       setPostResponse(response.data.message);
     } catch (error) {
-      console.log(error);
+      setPostResponse(error.response.data.message || "Cannot add username");
     }
   };
 
